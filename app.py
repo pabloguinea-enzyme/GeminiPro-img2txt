@@ -4,7 +4,6 @@ import base64
 from difflib import SequenceMatcher
 from google.cloud import aiplatform
 from vertexai.preview.language_models import ChatModel, InputOutputTextPair
-from google.auth.credentials import AnonymousCredentials
 
 # Function to calculate similarity between two strings
 def calculate_similarity(a, b):
@@ -38,12 +37,15 @@ if not api_key:
     st.error("Please provide a valid API Key.")
     st.stop()
 
-# Initialize Vertex AI SDK with API Key
+# Set API Key in environment variable
+os.environ["GOOGLE_API_KEY"] = api_key
+
+# Initialize Vertex AI SDK
 project_id = "bright-aloe-429610-d4"
 location = "us-central1"
 
 try:
-    aiplatform.init(project=project_id, location=location, credentials=AnonymousCredentials(), client_options={"api_key": api_key})
+    aiplatform.init(project=project_id, location=location)
 except Exception as e:
     st.error(f"Error initializing Vertex AI: {e}")
     st.stop()
