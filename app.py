@@ -3,8 +3,7 @@ import streamlit as st
 import base64
 from difflib import SequenceMatcher
 from google.cloud import aiplatform
-from vertexai.preview.language_models import GenerativeModel, ChatSession
-from google.auth.transport.requests import Request
+from vertexai.preview.language_models import ChatModel, InputOutputTextPair
 from google.auth.credentials import AnonymousCredentials
 
 # Function to calculate similarity between two strings
@@ -12,7 +11,7 @@ def calculate_similarity(a, b):
     return SequenceMatcher(None, a, b).ratio()
 
 # Function to get image description using Gemini
-def get_image_description_gemini(chat: ChatSession, uploaded_file):
+def get_image_description_gemini(chat, uploaded_file):
     encoded_image = base64.b64encode(uploaded_file.getvalue()).decode('utf-8')
     image_url = f"data:image/png;base64,{encoded_image}"
 
@@ -21,7 +20,7 @@ def get_image_description_gemini(chat: ChatSession, uploaded_file):
     return description
 
 # Function to get chat response
-def get_chat_response(chat: ChatSession, prompt: str) -> str:
+def get_chat_response(chat, prompt: str) -> str:
     text_response = []
     responses = chat.send_message(prompt, stream=True)
     for chunk in responses:
@@ -40,7 +39,7 @@ if not api_key:
     st.stop()
 
 # Initialize Vertex AI SDK with API Key
-project_id = "your-google-cloud-project-id"
+project_id = "bright-aloe-429610-d4"
 location = "us-central1"
 
 try:
@@ -50,9 +49,9 @@ except Exception as e:
     st.stop()
 
 # Load the Gemini 1.5 Flash model
-model_id = "gemini-1.5-flash-001"
+model_id = "chat-gemini-1.5-pro-001"
 try:
-    model = GenerativeModel(model_name=model_id)
+    model = ChatModel.from_pretrained(model_id)
     chat = model.start_chat()
 except Exception as e:
     st.error(f"Error loading model: {e}")
