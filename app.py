@@ -51,7 +51,7 @@ except Exception as e:
     st.stop()
 
 # Correct Model ID
-model_id = "chat-gemini-1.5-flash"  # Use a correct model name
+model_id = "gemini-1.5-pro"  # Use a correct model name
 
 try:
     model = ChatModel.from_pretrained(model_id)
