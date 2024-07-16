@@ -50,8 +50,9 @@ except Exception as e:
     st.error(f"Error initializing Vertex AI: {e}")
     st.stop()
 
-# Load the Gemini 1.5 Flash model
-model_id = "chat-gemini-1.5-pro-001"
+# Correct Model ID
+model_id = "chat-gemini-1.5-flash"  # Use a correct model name
+
 try:
     model = ChatModel.from_pretrained(model_id)
     chat = model.start_chat()
