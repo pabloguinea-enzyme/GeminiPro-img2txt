@@ -2,7 +2,7 @@ import os
 import streamlit as st
 from google.cloud import aiplatform
 import base64
-from vertexai.preview.language_models import ChatModel, InputOutputTextPair, TextPrompt
+from vertexai.preview.language_models import ChatModel, InputOutputTextPair
 from difflib import SequenceMatcher
 
 # Function to calculate similarity between two strings
@@ -16,7 +16,7 @@ def get_image_description_gemini(model, uploaded_file):
 
     prompt = f"Describe the following image: {image_url}"
 
-    response = model.chat([InputOutputTextPair(Input=TextPrompt(prompt))])
+    response = model.chat([InputOutputTextPair(Input=prompt)])
     
     description = response.output
     return description
@@ -26,7 +26,7 @@ st.title("Image Relevance to News Text using Gemini 1.5 Pro")
 st.write("Upload a news text and images to find out which images are relevant to the text.")
 
 # Authenticate and initialize Vertex AI SDK
-PROJECT_ID = "bright-aloe-429610-d4"
+PROJECT_ID = "your-google-cloud-project-id"
 LOCATION = "us-central1"
 
 aiplatform.init(project=PROJECT_ID, location=LOCATION)
