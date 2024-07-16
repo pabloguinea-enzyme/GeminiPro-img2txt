@@ -2,37 +2,43 @@ import os
 import streamlit as st
 from google.cloud import aiplatform
 import base64
-from vertexai.preview.language_models import ChatModel, InputOutputTextPair
 from difflib import SequenceMatcher
+from vertexai.generative_models import GenerativeModel, ChatSession
 
 # Function to calculate similarity between two strings
 def calculate_similarity(a, b):
     return SequenceMatcher(None, a, b).ratio()
 
-# Function to get image description
-def get_image_description_gemini(model, uploaded_file):
+# Function to get image description using Gemini
+def get_image_description_gemini(chat: ChatSession, uploaded_file):
     encoded_image = base64.b64encode(uploaded_file.getvalue()).decode('utf-8')
     image_url = f"data:image/png;base64,{encoded_image}"
 
     prompt = f"Describe the following image: {image_url}"
-
-    response = model.chat([InputOutputTextPair(Input=prompt)])
-    
-    description = response.output
+    description = get_chat_response(chat, prompt)
     return description
+
+# Function to get chat response
+def get_chat_response(chat: ChatSession, prompt: str) -> str:
+    text_response = []
+    responses = chat.send_message(prompt, stream=True)
+    for chunk in responses:
+        text_response.append(chunk.text)
+    return "".join(text_response)
 
 # Streamlit app layout
 st.title("Image Relevance to News Text using Gemini 1.5 Pro")
 st.write("Upload a news text and images to find out which images are relevant to the text.")
 
 # Authenticate and initialize Vertex AI SDK
-PROJECT_ID = "your-google-cloud-project-id"
+PROJECT_ID = "bright-aloe-429610-d4d"
 LOCATION = "us-central1"
 
 aiplatform.init(project=PROJECT_ID, location=LOCATION)
 
-# Load the Gemini 1.5 Pro model
-model = ChatModel.from_pretrained("chat-gemini-1.5-pro")
+# Load the Gemini 1.5 Flash model
+model = GenerativeModel(model_name="gemini-1.5-flash-001")
+chat = model.start_chat()
 
 # Text area for news text input
 news_text = st.text_area("Enter the news text")
@@ -51,7 +57,7 @@ if news_text and uploaded_files:
             st.write("Classifying...")
 
             # Get the image description
-            description = get_image_description_gemini(model, uploaded_file)
+            description = get_image_description_gemini(chat, uploaded_file)
             st.write(description)
 
             # Calculate similarity between news text and image description
